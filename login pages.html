@@ -3,22 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Spiders Follow Mouse</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <h2>Login</h2>
-        <form >
-            <div>
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button>Login</button>
-        </form>
-    </div>
+    <canvas></canvas>
+    <script>
+        // Get the canvas and context
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize canvas size
+        let w = window.innerWidth;
+        let h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+
+        // Utility function to draw a circle
+        function drawCircle(x, y, radius, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // Spider class
+        class Spider {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.speed = 0.05;
+            }
+
+            // Method to move the spider towards the target
+            follow(targetX, targetY) {
+                this.x += (targetX - this.x) * this.speed;
+                this.y += (targetY - this.y) * this.speed;
+            }
+
+            // Method to draw the spider
+            tick() {
+                drawCircle(this.x, this.y, 5, 'white');
+            }
+        }
+
+        // Create an array of spiders
+        const spiders = Array.from({ length: 5 }, () => 
+            new Spider(Math.random() * w, Math.random() * h)
+        );
+
+        // Mouse position tracker
+        let mouseX = w / 2;
+        let mouseY = h / 2;
+
+        // Update mouse position on pointer move
+        addEventListener('pointermove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Animation loop
+        function animate() {
+            // Resize canvas if window size changes
+            if (w !== window.innerWidth) w = canvas.width = window.innerWidth;
+            if (h !== window.innerHeight) h = canvas.height = window.innerHeight;
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, w, h);
+
+            // Draw spiders and update their positions
+            spiders.forEach(spider => {
+                spider.follow(mouseX, mouseY);
+                spider.tick();
+            });
+
+            // Request the next animation frame
+            requestAnimationFrame(animate);
+        }
+
+        // Start the animation
+        animate();
+    </script>
 </body>
 </html>
